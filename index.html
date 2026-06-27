@@ -2,6 +2,13 @@
 <html><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+  window.__classlySb = window.supabase.createClient(
+    "https://obeeivvtaftjdequxubv.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZWVpdnZ0YWZ0amRlcXV4dWJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NTA3NDcsImV4cCI6MjA5ODAyNjc0N30.XGnW2QckmYECxf5DUJ7SolHJaj4gJE7frfuCtT638Fw"
+  );
+</script>
 <script src="8b26777c-a891-4e06-8fcf-695569d7c808.js"></script>
 </head>
 <body>
@@ -1005,8 +1012,54 @@ class Component extends DCLogic {
     this.state.attendance=this.seedAttendance();
     this.stop=(e)=>{ e.stopPropagation(); };
   }
-  componentDidMount(){ try{ const raw=localStorage.getItem('classly_v4'); if(raw){ const d=JSON.parse(raw); if(d&&d.students){ this.data.students=d.students; if(d.assignments)this.data.assignments=d.assignments; if(d.scores)this.data.scores=d.scores; this.data.flags=d.flags||{}; if(d.mastery)this.data.mastery=d.mastery; this.setState({attendance:d.attendance||{},notes:d.notes||{}}); } } }catch(e){} }
-  persist(){ try{ localStorage.setItem('classly_v4', JSON.stringify({students:this.data.students,assignments:this.data.assignments,scores:this.data.scores,flags:this.data.flags,mastery:this.data.mastery,attendance:this.state.attendance,notes:this.state.notes})); }catch(e){} }
+  async componentDidMount(){
+    try{
+      const sb=window.__classlySb; if(!sb) return;
+      const [studentsR,assignR,scoresR,stdR,masR,attR,noteR]=await Promise.all([
+        sb.from('students').select('*'),
+        sb.from('assignments').select('*'),
+        sb.from('scores').select('*'),
+        sb.from('standards').select('*'),
+        sb.from('mastery').select('*'),
+        sb.from('attendance').select('*'),
+        sb.from('notes').select('*'),
+      ]);
+      if(studentsR.data && studentsR.data.length){
+        this.data.students=studentsR.data.map(s=>({id:s.id,name:s.name,first:s.first,initials:s.initials,color:s.color,guardian:s.guardian,ability:null}));
+        if(assignR.data&&assignR.data.length) this.data.assignments=assignR.data.map(a=>({id:a.id,term:a.term,comp:a.comp,name:a.name,hps:a.hps,short:a.short}));
+        const scores={},flags={};
+        (scoresR.data||[]).forEach(r=>{const k=r.assignment_id+'-'+r.student_id;scores[k]=r.raw==null?null:Number(r.raw);if(r.flag)flags[k]=r.flag;});
+        this.data.scores=scores; this.data.flags=flags;
+        if(stdR.data&&stdR.data.length) this.data.standards=stdR.data;
+        const mastery={};(masR.data||[]).forEach(r=>{mastery[r.standard_id+'-'+r.student_id]=r.level;});
+        this.data.mastery=mastery;
+        const attendance={};(attR.data||[]).forEach(r=>{attendance[r.att_date+'|'+r.period+'|'+r.student_id]=r.status;});
+        const notes={};(noteR.data||[]).forEach(r=>{notes[r.note_date+'|'+r.period+'|'+r.student_id]=r.body;});
+        this.setState({attendance,notes});
+      }
+    }catch(e){ console.error('Supabase load failed, using local seed data',e); }
+  }
+  async persist(){
+    try{
+      const sb=window.__classlySb; if(!sb) return;
+      const scoreRows=Object.keys(this.data.scores).map(k=>{const i=k.lastIndexOf('-');return{assignment_id:k.slice(0,i),student_id:k.slice(i+1),raw:this.data.scores[k],flag:this.data.flags[k]||null};});
+      const masteryRows=Object.keys(this.data.mastery).map(k=>{const i=k.lastIndexOf('-');return{standard_id:k.slice(0,i),student_id:k.slice(i+1),level:this.data.mastery[k]};});
+      const attUp=[],attDel=[];
+      Object.keys(this.state.attendance).forEach(k=>{const[date,period,sid]=k.split('|');const v=this.state.attendance[k];if(v)attUp.push({att_date:date,period:+period,student_id:sid,status:v});else attDel.push({date,period,sid});});
+      const noteUp=[],noteDel=[];
+      Object.keys(this.state.notes).forEach(k=>{const[date,period,sid]=k.split('|');const v=this.state.notes[k];if(v)noteUp.push({note_date:date,period:+period,student_id:sid,body:v});else noteDel.push({date,period,sid});});
+      await Promise.all([
+        sb.from('students').upsert(this.data.students.map(s=>({id:s.id,name:s.name,first:s.first,initials:s.initials,color:s.color,guardian:s.guardian}))),
+        sb.from('assignments').upsert(this.data.assignments.map(a=>({id:a.id,term:a.term,comp:a.comp,name:a.name,hps:a.hps,short:a.short||null}))),
+        scoreRows.length?sb.from('scores').upsert(scoreRows):Promise.resolve(),
+        masteryRows.length?sb.from('mastery').upsert(masteryRows):Promise.resolve(),
+        attUp.length?sb.from('attendance').upsert(attUp):Promise.resolve(),
+        noteUp.length?sb.from('notes').upsert(noteUp):Promise.resolve(),
+      ]);
+      for(const d of attDel){ await sb.from('attendance').delete().eq('att_date',d.date).eq('period',+d.period).eq('student_id',d.sid); }
+      for(const d of noteDel){ await sb.from('notes').delete().eq('note_date',d.date).eq('period',+d.period).eq('student_id',d.sid); }
+    }catch(e){ console.error('Supabase persist failed',e); }
+  }
   toast(msg){ clearTimeout(this._t); this.setState({toast:msg}); this._t=setTimeout(()=>this.setState({toast:''}),2600); }
   rnd(s){const x=Math.sin(s*127.1+311.7)*43758.5453;return x-Math.floor(x);}
   build(){
@@ -1066,11 +1119,11 @@ class Component extends DCLogic {
   openAssign(aid){const a=this.data.assignments.find(x=>x.id===aid);this.setState({editAssign:{id:aid,name:a.name,comp:a.comp,max:String(a.hps),confirm:false}});}
   setAssignField(f,v){this.setState(st=>({editAssign:Object.assign({},st.editAssign,{[f]:v})}));}
   saveAssign(){const e=this.state.editAssign;const a=this.data.assignments.find(x=>x.id===e.id);a.name=e.name||a.name;a.comp=e.comp;a.hps=parseInt(e.max)||a.hps;this.persist();this.setState({editAssign:null});this.toast('Assessment updated');}
-  deleteAssign(){const e=this.state.editAssign;if(!e.confirm){this.setState({editAssign:Object.assign({},e,{confirm:true})});return;}const id=e.id;this.data.assignments=this.data.assignments.filter(a=>a.id!==id);this.data.students.forEach(s=>{delete this.data.scores[id+'-'+s.id];delete this.data.flags[id+'-'+s.id];});this.persist();this.setState({editAssign:null});this.toast('Assignment deleted');}
+  deleteAssign(){const e=this.state.editAssign;if(!e.confirm){this.setState({editAssign:Object.assign({},e,{confirm:true})});return;}const id=e.id;this.data.assignments=this.data.assignments.filter(a=>a.id!==id);this.data.students.forEach(s=>{delete this.data.scores[id+'-'+s.id];delete this.data.flags[id+'-'+s.id];});const sb=window.__classlySb;if(sb)sb.from('assignments').delete().eq('id',id).then(()=>{},e=>console.error(e));this.persist();this.setState({editAssign:null});this.toast('Assignment deleted');}
   openStudent(sid){const s=this.data.students.find(x=>x.id===sid);this.setState({editStudent:{id:sid,name:s.name,guardian:s.guardian,confirm:false}});}
   setStudentField(f,v){this.setState(st=>({editStudent:Object.assign({},st.editStudent,{[f]:v})}));}
   saveStudent(){const e=this.state.editStudent;const s=this.data.students.find(x=>x.id===e.id);const parts=(e.name||s.name).trim().split(/\s+/);s.name=e.name||s.name;s.first=parts[0];s.initials=((parts[0]||'?')[0]+((parts[1]||parts[0]||'?')[0]||'')).toUpperCase();s.guardian=e.guardian;this.persist();this.setState({editStudent:null});this.toast('Student updated');}
-  removeStudent(){const e=this.state.editStudent;if(!e)return;if(!e.confirm){this.setState({editStudent:Object.assign({},e,{confirm:true})});return;}const id=e.id;this.data.students=this.data.students.filter(s=>s.id!==id);this.persist();const nx=this.data.students[0];this.setState({editStudent:null,selectedStudent:nx?nx.id:null});this.toast('Student removed');}
+  removeStudent(){const e=this.state.editStudent;if(!e)return;if(!e.confirm){this.setState({editStudent:Object.assign({},e,{confirm:true})});return;}const id=e.id;this.data.students=this.data.students.filter(s=>s.id!==id);const sb=window.__classlySb;if(sb)sb.from('students').delete().eq('id',id).then(()=>{},e=>console.error(e));this.persist();const nx=this.data.students[0];this.setState({editStudent:null,selectedStudent:nx?nx.id:null});this.toast('Student removed');}
   openReport(sid){this.setState({showReport:sid});}
   monthlyAtt(sidx){return this.data.months.map((m,k)=>{const days=m.days.length;let absent=Math.floor(this.rnd(sidx*31+k*3)*2.4);let late=Math.floor(this.rnd(sidx*31+k*3+11)*1.8);let excused=this.rnd(sidx*31+k*3+19)>0.82?1:0;absent=Math.min(absent,days);late=Math.min(late,Math.max(0,days-absent));excused=Math.min(excused,Math.max(0,days-absent-late));const present=Math.max(0,days-absent-late-excused);const rate=days?Math.round((present+late)/days*100):0;return{name:m.name,days,present,late,absent,excused,rate};});}
   printReport(){try{window.print();}catch(e){}}

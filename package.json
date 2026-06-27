@@ -1,0 +1,16 @@
+{
+  "name": "classly-teacher-app",
+  "version": "1.0.0",
+  "main": "8b26777c-a891-4e06-8fcf-695569d7c808.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
+    "ws": "^8.21.0"
+  }
+}
