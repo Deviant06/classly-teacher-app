@@ -8,6 +8,73 @@
     "https://obeeivvtaftjdequxubv.supabase.co",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZWVpdnZ0YWZ0amRlcXV4dWJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NTA3NDcsImV4cCI6MjA5ODAyNjc0N30.XGnW2QckmYECxf5DUJ7SolHJaj4gJE7frfuCtT638Fw"
   );
+
+  // --- Auth gate: blocks the app until a Supabase session exists. Lives
+  // outside the x-dc template/runtime so it can't be broken by app edits. ---
+  document.addEventListener('DOMContentLoaded', async function authGate(){
+    const sb = window.__classlySb;
+    const { data:{ session } } = await sb.auth.getSession();
+    if (session) {
+      window.__classlySession = session;
+      mountSignOutButton();
+      return;
+    }
+    renderLoginOverlay();
+  });
+
+  function mountSignOutButton(){
+    const btn = document.createElement('button');
+    btn.textContent = 'Sign out';
+    btn.style.cssText = 'position:fixed;bottom:14px;right:14px;z-index:99997;background:#fff;border:1px solid #e4e2ef;color:#6f6c8a;font:600 13px -apple-system,BlinkMacSystemFont,sans-serif;padding:8px 14px;border-radius:10px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.08);';
+    btn.onclick = async () => { await window.__classlySb.auth.signOut(); window.location.reload(); };
+    document.body.appendChild(btn);
+  }
+
+  function renderLoginOverlay(){
+    const sb = window.__classlySb;
+    const overlay = document.createElement('div');
+    overlay.id = '__classly_login';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#f4f3fb;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,sans-serif;';
+    overlay.innerHTML = `
+      <form id="__classly_login_form" style="width:340px;background:#fff;border-radius:20px;padding:32px;box-shadow:0 12px 40px rgba(108,74,214,.18);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px;">
+          <div style="width:40px;height:40px;border-radius:12px;background:#6c4ad6;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;">C</div>
+          <div>
+            <div style="font-weight:800;font-size:17px;color:#1a1825;">Classly</div>
+            <div style="font-size:12px;color:#9b98ab;">Teacher sign in</div>
+          </div>
+        </div>
+        <label style="display:block;font-size:12px;font-weight:600;color:#6f6c8a;margin-bottom:6px;">Email</label>
+        <input id="__classly_email" type="email" required style="width:100%;padding:10px 12px;border:1px solid #e4e2ef;border-radius:10px;font-size:14px;margin-bottom:14px;" />
+        <label style="display:block;font-size:12px;font-weight:600;color:#6f6c8a;margin-bottom:6px;">Password</label>
+        <input id="__classly_password" type="password" required minlength="6" style="width:100%;padding:10px 12px;border:1px solid #e4e2ef;border-radius:10px;font-size:14px;margin-bottom:18px;" />
+        <button id="__classly_signin" type="submit" style="width:100%;padding:11px;border:none;border-radius:10px;background:#6c4ad6;color:#fff;font-weight:700;font-size:14px;cursor:pointer;">Sign in</button>
+        <button id="__classly_signup" type="button" style="width:100%;padding:11px;border:none;border-radius:10px;background:transparent;color:#6c4ad6;font-weight:600;font-size:13px;cursor:pointer;margin-top:8px;">First time here? Create account</button>
+        <div id="__classly_err" style="color:#e0533d;font-size:13px;margin-top:10px;display:none;"></div>
+      </form>`;
+    document.body.appendChild(overlay);
+
+    const emailEl = overlay.querySelector('#__classly_email');
+    const passEl = overlay.querySelector('#__classly_password');
+    const errEl = overlay.querySelector('#__classly_err');
+    const showErr = (msg) => { errEl.textContent = msg; errEl.style.display = 'block'; };
+
+    overlay.querySelector('#__classly_login_form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { error } = await sb.auth.signInWithPassword({ email: emailEl.value, password: passEl.value });
+      if (error) { showErr(error.message); return; }
+      window.location.reload();
+    });
+
+    overlay.querySelector('#__classly_signup').addEventListener('click', async () => {
+      if (!emailEl.value || passEl.value.length < 6) { showErr('Enter an email and a password of at least 6 characters.'); return; }
+      const { error } = await sb.auth.signUp({ email: emailEl.value, password: passEl.value });
+      if (error) { showErr(error.message); return; }
+      const { data:{ session } } = await sb.auth.getSession();
+      if (session) { window.location.reload(); return; }
+      showErr('Account created — check your email to confirm, then sign in.');
+    });
+  }
 </script>
 <script src="8b26777c-a891-4e06-8fcf-695569d7c808.js"></script>
 </head>
