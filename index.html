@@ -316,8 +316,8 @@
     <div style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:12px;background:#f7f5fd;border:1px solid #ece9f4;border-radius:16px;">
       <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(140deg,#e0533d,#e0921a);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:none;">AR</div>
       <div style="display:flex;flex-direction:column;line-height:1.2;min-width:0;">
-        <div style="font-size:13px;font-weight:700;color:#1c1b2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Ms. A. Rivera</div>
-        <div style="font-size:11px;color:#9b98ab;">Science Dept.</div>
+        <div style="font-size:13px;font-weight:700;color:#1c1b2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ teacherName }}</div>
+        <div style="font-size:11px;color:#9b98ab;">Classly teacher</div>
       </div>
     </div>
   </aside>
@@ -904,6 +904,76 @@ Sofia Okafor" style="width:100%;height:148px;resize:vertical;padding:14px;border
     </div>
   </sc-if>
 
+  <!-- CLASS FORM (create / edit) -->
+  <sc-if value="{{ classFormView }}">
+    <div onclick="{{ closeClass }}" style="position:fixed;inset:0;background:rgba(28,27,46,.4);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:55;animation:fadeIn .15s ease;">
+      <div onclick="{{ stop }}" style="width:480px;max-height:88vh;overflow:auto;background:#fff;border-radius:24px;padding:28px;box-shadow:0 30px 70px rgba(28,27,46,.35);animation:popIn .22s ease;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+          <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:22px;">{{ classFormView.title }}</div>
+          <div onclick="{{ closeClass }}" style="width:34px;height:34px;border-radius:10px;background:#f4f3fb;display:flex;align-items:center;justify-content:center;cursor:pointer;"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:#6f6c8a;">close</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#6f6c8a;margin-bottom:6px;">Subject *</div>
+            <input value="{{ classFormView.subject }}" onchange="{{ setClassSubject }}" placeholder="e.g. General Biology" style="width:100%;padding:12px;border:1.5px solid #e4e1ee;border-radius:12px;font-size:14px;outline:none;color:#1c1b2e;box-sizing:border-box;font-family:'Figtree',sans-serif;">
+          </div>
+          <div style="display:flex;gap:12px;">
+            <div style="flex:1;">
+              <div style="font-size:12px;font-weight:700;color:#6f6c8a;margin-bottom:6px;">Section</div>
+              <input value="{{ classFormView.section }}" onchange="{{ setClassSection }}" placeholder="e.g. Curie" style="width:100%;padding:12px;border:1.5px solid #e4e1ee;border-radius:12px;font-size:14px;outline:none;color:#1c1b2e;box-sizing:border-box;font-family:'Figtree',sans-serif;">
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:12px;font-weight:700;color:#6f6c8a;margin-bottom:6px;">Grade level</div>
+              <input value="{{ classFormView.gradeLevel }}" onchange="{{ setClassGrade }}" placeholder="e.g. Grade 11" style="width:100%;padding:12px;border:1.5px solid #e4e1ee;border-radius:12px;font-size:14px;outline:none;color:#1c1b2e;box-sizing:border-box;font-family:'Figtree',sans-serif;">
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;">
+            <div style="flex:1;">
+              <div style="font-size:12px;font-weight:700;color:#6f6c8a;margin-bottom:6px;">Period label</div>
+              <input value="{{ classFormView.period }}" onchange="{{ setClassPeriod }}" placeholder="e.g. P2" style="width:100%;padding:12px;border:1.5px solid #e4e1ee;border-radius:12px;font-size:14px;outline:none;color:#1c1b2e;box-sizing:border-box;font-family:'Figtree',sans-serif;">
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:12px;font-weight:700;color:#6f6c8a;margin-bottom:6px;">Room</div>
+              <input value="{{ classFormView.room }}" onchange="{{ setClassRoom }}" placeholder="e.g. Rm 214" style="width:100%;padding:12px;border:1.5px solid #e4e1ee;border-radius:12px;font-size:14px;outline:none;color:#1c1b2e;box-sizing:border-box;font-family:'Figtree',sans-serif;">
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:12px;font-weight:700;color:#6f6c8a;margin-bottom:6px;">Time</div>
+              <input value="{{ classFormView.time }}" onchange="{{ setClassTime }}" placeholder="e.g. 9:05 AM" style="width:100%;padding:12px;border:1.5px solid #e4e1ee;border-radius:12px;font-size:14px;outline:none;color:#1c1b2e;box-sizing:border-box;font-family:'Figtree',sans-serif;">
+            </div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#6f6c8a;margin-bottom:8px;">Subject type · sets DepEd grade weights</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+              <sc-for list="{{ classFormView.typeChoices }}" as="t" hint-placeholder-count="5">
+                <div onclick="{{ t.onClick }}" style="{{ t.style }}">{{ t.name }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:22px;">
+          <div onclick="{{ closeClass }}" style="flex:none;padding:13px 20px;border-radius:13px;background:#f4f3fb;color:#6f6c8a;font-weight:700;font-size:15px;cursor:pointer;">Cancel</div>
+          <div onclick="{{ saveClass }}" style="flex:1;text-align:center;padding:13px;border-radius:13px;background:#6c4ad6;color:#fff;font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 8px 18px rgba(108,74,214,.35);">Save class</div>
+        </div>
+        <sc-if value="{{ classFormView.isEdit }}">
+          <div onclick="{{ deleteClass }}" style="text-align:center;margin-top:12px;padding:11px;border-radius:12px;background:#fbe8e3;color:#b23a26;font-weight:700;font-size:13px;cursor:pointer;">{{ classFormView.deleteLabel }}</div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ONBOARDING (no classes yet) -->
+  <sc-if value="{{ needsOnboarding }}">
+    <div style="position:fixed;inset:0;background:#f4f3fb;display:flex;align-items:center;justify-content:center;z-index:48;">
+      <div style="width:440px;background:#fff;border-radius:24px;padding:36px;box-shadow:0 30px 70px rgba(28,27,46,.18);text-align:center;">
+        <div style="width:64px;height:64px;border-radius:18px;background:#6c4ad6;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;"><span style="font-family:'Material Symbols Rounded';font-size:34px;color:#fff;">school</span></div>
+        <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:24px;margin-bottom:8px;">Welcome to Classly</div>
+        <div style="font-size:14px;color:#6f6c8a;line-height:1.55;margin-bottom:26px;">You don’t have any classes yet. Create your first class to start taking attendance and recording grades.</div>
+        <div onclick="{{ onNewClass }}" style="padding:14px;border-radius:14px;background:#6c4ad6;color:#fff;font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 8px 18px rgba(108,74,214,.35);margin-bottom:10px;">Create your first class</div>
+        <div onclick="{{ onLoadDemo }}" style="padding:13px;border-radius:14px;background:#f4f3fb;color:#6f6c8a;font-weight:700;font-size:14px;cursor:pointer;">Load a demo class instead</div>
+      </div>
+    </div>
+  </sc-if>
+
   <!-- GRADE CELL EDITOR -->
   <sc-if value="{{ editCellView }}">
     <div onclick="{{ closeCell }}" style="position:fixed;inset:0;background:rgba(28,27,46,.4);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:52;animation:fadeIn .15s ease;">
@@ -1074,58 +1144,153 @@ class Component extends DCLogic {
   constructor(props){
     super(props);
     this.avatars=['#6c4ad6','#1f9d6b','#e0921a','#3b82c4','#b14ad6','#2bb8a3','#d64a86','#e0533d','#7c5cd6','#4a9d6b'];
-    this.data=this.build();
-    this.state={screen:'dashboard',period:0,date:'2026-06-19',attendance:{},notes:{},selectedStudent:'s0',showAddGrade:false,gbTerm:0,newName:'',newComp:'ww',newMax:'100',showImport:false,importText:'',search:'',sortBy:'name',riskThreshold:75,editCell:null,editAssign:null,editStudent:null,showReport:null,toast:''};
-    this.state.attendance=this.seedAttendance();
+    this.classColors=['#6c4ad6','#2bb8a3','#e0921a','#3b82c4','#d64a86','#1f9d6b'];
+    this.userId=null; this.role='teacher'; this.profileName='';
+    this.data=this.emptyData();
+    this.state={screen:'dashboard',period:0,date:'2026-06-19',attendance:{},notes:{},selectedStudent:null,showAddGrade:false,gbTerm:0,newName:'',newComp:'ww',newMax:'100',showImport:false,importText:'',search:'',sortBy:'name',riskThreshold:75,editCell:null,editAssign:null,editStudent:null,showReport:null,toast:'',loaded:false,showClassForm:null,busy:false};
     this.stop=(e)=>{ e.stopPropagation(); };
+  }
+  genId(p){return (p||'c')+Date.now().toString(36)+Math.floor(Math.random()*1e6).toString(36);}
+  componentsFor(stype){
+    const WT={'Core Subject':[0.20,0.50,0.30],'Academic Elective':[0.20,0.50,0.30],'Immersion / Research':[0.15,0.70,0.15],'Specialized / Applied':[0.15,0.65,0.20],'Performance-based':[0.20,0.80,0.00]};
+    const w=WT[stype]||WT['Core Subject'];
+    return [{id:'ww',name:'Written Works',short:'WW',icon:'edit_note',color:'#6c4ad6',weight:w[0]},{id:'pt',name:'Performance Tasks',short:'PT',icon:'science',color:'#e0921a',weight:w[1]},{id:'qa',name:'Quarterly Assessment',short:'QA',icon:'quiz',color:'#2bb8a3',weight:w[2]}];
+  }
+  emptyData(){
+    const standards=['Cellular Processes','Genetics & Heredity','Scientific Method','Data Analysis','Ecology'].map((n,i)=>({id:'st'+i,name:n}));
+    const mNames=['Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];const mIdx=[[2025,8],[2025,9],[2025,10],[2025,11],[2026,0],[2026,1],[2026,2],[2026,3],[2026,4],[2026,5]];
+    const months=mIdx.map((mi,k)=>{const[y,m]=mi;const days=[];const dim=new Date(y,m+1,0).getDate();let sum=0,cnt=0;for(let d=1;d<=dim;d++){const wd=new Date(y,m,d).getDay();if(wd===0||wd===6)continue;let rate=0.965+(this.rnd(k*40+d)-0.5)*0.06;if(this.rnd(k*7+d)>0.93)rate-=0.1;rate=Math.max(0.82,Math.min(1,rate));const color=rate>=0.985?'#1f9d6b':rate>=0.955?'#7ccfa3':rate>=0.92?'#f4d27a':'#ef9a86';days.push({color});sum+=rate;cnt++;}return{name:mNames[k],avg:Math.round(sum/cnt*100),days};});
+    return{classes:[],periods:[],allStudents:[],allAssignments:[],students:[],assignments:[],subjectType:'Core Subject',components:this.componentsFor('Core Subject'),scores:{},flags:{},standards,mastery:{},months};
   }
   async componentDidMount(){
     try{
-      const sb=window.__classlySb; if(!sb) return;
-      const [studentsR,assignR,scoresR,stdR,masR,attR,noteR]=await Promise.all([
-        sb.from('students').select('*'),
-        sb.from('assignments').select('*'),
-        sb.from('scores').select('*'),
-        sb.from('standards').select('*'),
-        sb.from('mastery').select('*'),
-        sb.from('attendance').select('*'),
-        sb.from('notes').select('*'),
-      ]);
-      if(studentsR.data && studentsR.data.length){
-        this.data.students=studentsR.data.map(s=>({id:s.id,name:s.name,first:s.first,initials:s.initials,color:s.color,guardian:s.guardian,ability:null}));
-        if(assignR.data&&assignR.data.length) this.data.assignments=assignR.data.map(a=>({id:a.id,term:a.term,comp:a.comp,name:a.name,hps:a.hps,short:a.short}));
-        const scores={},flags={};
-        (scoresR.data||[]).forEach(r=>{const k=r.assignment_id+'-'+r.student_id;scores[k]=r.raw==null?null:Number(r.raw);if(r.flag)flags[k]=r.flag;});
-        this.data.scores=scores; this.data.flags=flags;
-        if(stdR.data&&stdR.data.length) this.data.standards=stdR.data;
-        const mastery={};(masR.data||[]).forEach(r=>{mastery[r.standard_id+'-'+r.student_id]=r.level;});
-        this.data.mastery=mastery;
-        const attendance={};(attR.data||[]).forEach(r=>{attendance[r.att_date+'|'+r.period+'|'+r.student_id]=r.status;});
-        const notes={};(noteR.data||[]).forEach(r=>{notes[r.note_date+'|'+r.period+'|'+r.student_id]=r.body;});
-        this.setState({attendance,notes});
-      }
-    }catch(e){ console.error('Supabase load failed, using local seed data',e); }
+      const sb=window.__classlySb; if(!sb){ this.setState({loaded:true}); return; }
+      const { data:{ user } } = await sb.auth.getUser();
+      if(!user){ this.setState({loaded:true}); return; }
+      this.userId=user.id;
+      // Ensure a profile row exists (accounts created before the signup trigger existed).
+      await sb.from('profiles').upsert({id:user.id, full_name:(user.user_metadata&&user.user_metadata.full_name)||user.email}, {onConflict:'id', ignoreDuplicates:true});
+      const prof=await sb.from('profiles').select('role,full_name').eq('id',user.id).maybeSingle();
+      this.role=(prof.data&&prof.data.role)||'teacher';
+      this.profileName=(prof.data&&prof.data.full_name)||user.email;
+      await this.reload();
+    }catch(e){ console.error('load failed',e); this.setState({loaded:true}); }
   }
+  async reload(){
+    const sb=window.__classlySb;
+    const [clsR,studentsR,assignR,scoresR,masR,attR,noteR]=await Promise.all([
+      sb.from('sections').select('*'),
+      sb.from('students').select('*'),
+      sb.from('assignments').select('*'),
+      sb.from('scores').select('*'),
+      sb.from('mastery').select('*'),
+      sb.from('attendance').select('*'),
+      sb.from('notes').select('*'),
+    ]);
+    const classes=(clsR.data||[]).map((c,i)=>({id:c.id,subject:c.subject,period:c.period,room:c.room,time:c.time,color:c.color||this.classColors[i%this.classColors.length],subject_type:c.subject_type||'Core Subject',section:c.section,grade_level:c.grade_level,school_year:c.school_year}));
+    classes.sort((a,b)=>(a.period||'').localeCompare(b.period||'')||(a.subject||'').localeCompare(b.subject||''));
+    this.data.classes=classes; this.data.periods=classes;
+    this.data.allStudents=(studentsR.data||[]).map(s=>({id:s.id,name:s.name,first:s.first,initials:s.initials,color:s.color,guardian:s.guardian,class_id:s.class_id,ability:null}));
+    this.data.allAssignments=(assignR.data||[]).map(a=>({id:a.id,term:a.term,comp:a.comp,name:a.name,hps:a.hps,short:a.short,class_id:a.class_id}));
+    const scores={},flags={};(scoresR.data||[]).forEach(r=>{const k=r.assignment_id+'-'+r.student_id;scores[k]=r.raw==null?null:Number(r.raw);if(r.flag)flags[k]=r.flag;});
+    this.data.scores=scores; this.data.flags=flags;
+    const mastery={};(masR.data||[]).forEach(r=>{mastery[r.standard_id+'-'+r.student_id]=r.level;});this.data.mastery=mastery;
+    const attendance={};(attR.data||[]).forEach(r=>{attendance[r.att_date+'|'+r.class_id+'|'+r.student_id]=r.status;});
+    const notes={};(noteR.data||[]).forEach(r=>{notes[r.note_date+'|'+r.class_id+'|'+r.student_id]=r.body;});
+    const period=Math.min(this.state.period, Math.max(0,classes.length-1));
+    this.selectClass(period);
+    const first=(this.data.students[0]||{}).id||null;
+    this.setState({attendance,notes,loaded:true,period,selectedStudent:first});
+  }
+  selectClass(idx){
+    const cls=this.data.classes[idx];
+    if(!cls){ this.data.students=[]; this.data.assignments=[]; return; }
+    this.data.subjectType=cls.subject_type||'Core Subject';
+    this.data.components=this.componentsFor(this.data.subjectType);
+    this.data.students=this.data.allStudents.filter(s=>s.class_id===cls.id);
+    this.data.assignments=this.data.allAssignments.filter(a=>a.class_id===cls.id);
+  }
+  curClass(){return this.data.classes[this.state.period]||null;}
+  curClassId(){const c=this.curClass();return c?c.id:'';}
   async persist(){
     try{
       const sb=window.__classlySb; if(!sb) return;
+      const cid=this.curClassId(); if(!cid) return;
       const scoreRows=Object.keys(this.data.scores).map(k=>{const i=k.lastIndexOf('-');return{assignment_id:k.slice(0,i),student_id:k.slice(i+1),raw:this.data.scores[k],flag:this.data.flags[k]||null};});
       const masteryRows=Object.keys(this.data.mastery).map(k=>{const i=k.lastIndexOf('-');return{standard_id:k.slice(0,i),student_id:k.slice(i+1),level:this.data.mastery[k]};});
       const attUp=[],attDel=[];
-      Object.keys(this.state.attendance).forEach(k=>{const[date,period,sid]=k.split('|');const v=this.state.attendance[k];if(v)attUp.push({att_date:date,period:+period,student_id:sid,status:v});else attDel.push({date,period,sid});});
+      Object.keys(this.state.attendance).forEach(k=>{const p=k.split('|');const date=p[0],classId=p[1],sid=p.slice(2).join('|');const v=this.state.attendance[k];if(v)attUp.push({att_date:date,class_id:classId,student_id:sid,status:v});else attDel.push({date,classId,sid});});
       const noteUp=[],noteDel=[];
-      Object.keys(this.state.notes).forEach(k=>{const[date,period,sid]=k.split('|');const v=this.state.notes[k];if(v)noteUp.push({note_date:date,period:+period,student_id:sid,body:v});else noteDel.push({date,period,sid});});
+      Object.keys(this.state.notes).forEach(k=>{const p=k.split('|');const date=p[0],classId=p[1],sid=p.slice(2).join('|');const v=this.state.notes[k];if(v)noteUp.push({note_date:date,class_id:classId,student_id:sid,body:v});else noteDel.push({date,classId,sid});});
       await Promise.all([
-        sb.from('students').upsert(this.data.students.map(s=>({id:s.id,name:s.name,first:s.first,initials:s.initials,color:s.color,guardian:s.guardian}))),
-        sb.from('assignments').upsert(this.data.assignments.map(a=>({id:a.id,term:a.term,comp:a.comp,name:a.name,hps:a.hps,short:a.short||null}))),
+        this.data.students.length?sb.from('students').upsert(this.data.students.map(s=>({id:s.id,name:s.name,first:s.first,initials:s.initials,color:s.color,guardian:s.guardian,class_id:cid}))):Promise.resolve(),
+        this.data.assignments.length?sb.from('assignments').upsert(this.data.assignments.map(a=>({id:a.id,term:a.term,comp:a.comp,name:a.name,hps:a.hps,short:a.short||null,class_id:cid}))):Promise.resolve(),
         scoreRows.length?sb.from('scores').upsert(scoreRows):Promise.resolve(),
         masteryRows.length?sb.from('mastery').upsert(masteryRows):Promise.resolve(),
         attUp.length?sb.from('attendance').upsert(attUp):Promise.resolve(),
         noteUp.length?sb.from('notes').upsert(noteUp):Promise.resolve(),
       ]);
-      for(const d of attDel){ await sb.from('attendance').delete().eq('att_date',d.date).eq('period',+d.period).eq('student_id',d.sid); }
-      for(const d of noteDel){ await sb.from('notes').delete().eq('note_date',d.date).eq('period',+d.period).eq('student_id',d.sid); }
+      for(const d of attDel){ await sb.from('attendance').delete().eq('att_date',d.date).eq('class_id',d.classId).eq('student_id',d.sid); }
+      for(const d of noteDel){ await sb.from('notes').delete().eq('note_date',d.date).eq('class_id',d.classId).eq('student_id',d.sid); }
     }catch(e){ console.error('Supabase persist failed',e); }
+  }
+  // ---- Class CRUD ----
+  newClass(){this.setState({showClassForm:{mode:'new',subject:'',section:'',grade_level:'Grade 11',subject_type:'Core Subject',period:'',room:'',time:''}});}
+  editClass(){const c=this.curClass(); if(!c)return; this.setState({showClassForm:{mode:'edit',id:c.id,subject:c.subject||'',section:c.section||'',grade_level:c.grade_level||'',subject_type:c.subject_type||'Core Subject',period:c.period||'',room:c.room||'',time:c.time||''}});}
+  setClassField(f,v){this.setState(st=>({showClassForm:Object.assign({},st.showClassForm,{[f]:v})}));}
+  async saveClass(){
+    const f=this.state.showClassForm; if(!f)return;
+    if(!f.subject||!f.subject.trim()){this.toast('Subject is required');return;}
+    const sb=window.__classlySb; this.setState({busy:true});
+    const row={subject:f.subject.trim(),section:f.section||null,grade_level:f.grade_level||null,subject_type:f.subject_type||'Core Subject',period:f.period||'',room:f.room||null,time:f.time||null,owner_id:this.userId,school_year:'2026-2027',term_system:'trimester'};
+    let err, targetId=f.id;
+    if(f.mode==='edit'){ const r=await sb.from('sections').update(row).eq('id',f.id); err=r.error; }
+    else { row.id=this.genId('cls'); targetId=row.id; const r=await sb.from('sections').insert(row); err=r.error; }
+    if(err){ this.setState({busy:false}); this.toast('Save failed: '+err.message); return; }
+    await this.reload();
+    const idx=this.data.classes.findIndex(c=>c.id===targetId); const ni=idx<0?0:idx;
+    this.selectClass(ni);
+    this.setState({showClassForm:null,busy:false,period:ni,selectedStudent:(this.data.students[0]||{}).id||null});
+    this.toast(f.mode==='edit'?'Class updated':'Class created');
+  }
+  async deleteClass(){
+    const f=this.state.showClassForm; if(!f||f.mode!=='edit')return;
+    if(!f.confirm){this.setState({showClassForm:Object.assign({},f,{confirm:true})});return;}
+    const sb=window.__classlySb; this.setState({busy:true});
+    const {error}=await sb.from('sections').delete().eq('id',f.id);
+    if(error){this.setState({busy:false});this.toast('Delete failed');return;}
+    await this.reload(); this.selectClass(0);
+    this.setState({showClassForm:null,busy:false,period:0,selectedStudent:(this.data.students[0]||{}).id||null});
+    this.toast('Class deleted');
+  }
+  // ---- Demo class (onboarding convenience) ----
+  async loadDemo(){
+    const sb=window.__classlySb; if(!this.userId)return;
+    this.setState({busy:true});
+    try{
+      const cid=this.genId('cls');
+      const fn=['Maya','Liam','Sofia','Ethan','Aisha','Noah','Zoe','Diego','Priya','Marcus','Lena','Jamal','Chloe','Andre','Nina','Oscar','Hana','Tariq','Bella','Theo'];
+      const ln=['Rivera','Chen','Okafor','Patel','Nguyen','Santos','Kim','Mueller','Haddad','Brooks','Rossi','Webb','Adeyemi','Lopez','Volkov','Reyes','Tanaka','Bauer','Costa','Greene'];
+      const cls={id:cid,subject:'General Biology',period:'P2',room:'Rm 214',time:'9:05 AM',color:'#6c4ad6',subject_type:'Core Subject',section:'Curie',grade_level:'Grade 12',school_year:'2026-2027',term_system:'trimester',owner_id:this.userId};
+      const students=fn.map((f,i)=>({id:cid+'_s'+i,name:f+' '+ln[i],first:f,initials:f[0]+ln[i][0],color:this.avatars[i%this.avatars.length],guardian:ln[i]+' household',class_id:cid,_a:0.58+this.rnd(i+1)*0.40}));
+      const comps=this.componentsFor('Core Subject');
+      const tmpl={ww:[['Written Work 1',20,'1'],['Written Work 2',15,'2'],['Written Work 3',20,'3'],['Written Work 4',10,'4'],['Written Work 5',25,'5']],pt:[['Performance Task 1',50,'1'],['Performance Task 2',40,'2'],['Performance Task 3',30,'3']],qa:[['Summative Assessment 1',25,'SA1'],['Summative Assessment 2',25,'SA2'],['Term Exam',50,'TE']]};
+      const assignments=[];for(let t=0;t<3;t++){comps.forEach(c=>{tmpl[c.id].forEach((a,i)=>{assignments.push({id:cid+'_t'+t+c.id+i,term:t,comp:c.id,name:a[0],hps:a[1],short:a[2],class_id:cid});});});}
+      const scores=[];students.forEach((st,si)=>assignments.forEach((a,ai)=>{const n=(this.rnd(si*13+ai*7)-0.5)*0.22;const p=Math.max(0.45,Math.min(1,st._a+n-a.term*0.01));scores.push({assignment_id:a.id,student_id:st.id,raw:Math.round(p*a.hps),flag:null});}));
+      const mastery=[];students.forEach((st,si)=>this.data.standards.forEach((sd,di)=>{mastery.push({standard_id:sd.id,student_id:st.id,level:Math.max(1,Math.min(4,1+Math.round(this.rnd(si*5+di*3)*3*st._a+0.3)))});}));
+      const seq=['present','present','present','late','present','present','absent','present','present','excused','present','present','late','present','present','present','absent','present','excused','present'];
+      const att=[];students.forEach((s,i)=>{if(i!==3&&i!==13)att.push({att_date:'2026-06-19',class_id:cid,student_id:s.id,status:seq[i]});});
+      await sb.from('sections').insert(cls);
+      await sb.from('students').insert(students.map(s=>({id:s.id,name:s.name,first:s.first,initials:s.initials,color:s.color,guardian:s.guardian,class_id:cid})));
+      await sb.from('assignments').insert(assignments);
+      for(let i=0;i<scores.length;i+=500){await sb.from('scores').insert(scores.slice(i,i+500));}
+      await sb.from('mastery').insert(mastery);
+      await sb.from('attendance').insert(att);
+      await this.reload();
+      this.selectClass(this.state.period);
+      this.setState({busy:false,selectedStudent:(this.data.students[0]||{}).id||null});
+      this.toast('Demo class loaded');
+    }catch(e){ console.error(e); this.setState({busy:false}); this.toast('Demo load failed'); }
   }
   toast(msg){ clearTimeout(this._t); this.setState({toast:msg}); this._t=setTimeout(()=>this.setState({toast:''}),2600); }
   rnd(s){const x=Math.sin(s*127.1+311.7)*43758.5453;return x-Math.floor(x);}
@@ -1150,7 +1315,7 @@ class Component extends DCLogic {
     return{students,subjectType:stype,components,assignments,scores,flags:{},standards,mastery,periods,months};
   }
   seedAttendance(){const a={};const seq=['present','present','present','late','present','present','absent','present','present','excused','present','present','late','present','present','present','absent','present','excused','present'];this.data.students.forEach((s,i)=>{if(i!==3&&i!==13)a['2026-06-19|0|'+s.id]=seq[i];});return a;}
-  attKey(sid){return this.state.date+'|'+this.state.period+'|'+sid;}
+  attKey(sid){return this.state.date+'|'+this.curClassId()+'|'+sid;}
   noteFor(sid){return this.state.notes[this.attKey(sid)]||'';}
   setNote(sid,v){const key=this.attKey(sid);this.setState(st=>({notes:Object.assign({},st.notes,{[key]:v})}),()=>this.persist());}
   fmtDate(str){const d=new Date(str+'T00:00:00');return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});}
@@ -1171,14 +1336,14 @@ class Component extends DCLogic {
   letterColor(p){if(p==null)return '#9b98ab';return p>=90?'#1f9d6b':p>=80?'#6c4ad6':p>=75?'#e0921a':p>=65?'#d97334':'#e0533d';}
   sc(pct){if(pct==null)return{bg:'#f4f3fb',fg:'#9b98ab'};if(pct>=90)return{bg:'#e4f6ee',fg:'#157a52'};if(pct>=80)return{bg:'#efeafc',fg:'#5733b8'};if(pct>=70)return{bg:'#fbf0dd',fg:'#a8690f'};if(pct>=60)return{bg:'#fbe8e3',fg:'#b23a26'};return{bg:'#fbe1da',fg:'#a52d18'};}
   parseRoster(text){return text.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{if(l.includes(',')){const p=l.split(',');return ((p[1]||'').trim()+' '+(p[0]||'').trim()).trim();}return l;}).filter(Boolean);}
-  addStudents(){const names=this.parseRoster(this.state.importText);if(!names.length){this.setState({showImport:false});return;}names.forEach(name=>{const i=this.data.students.length;const parts=name.split(/\s+/);const initials=((parts[0]||'?')[0]+((parts[1]||parts[0]||'?')[0]||'')).toUpperCase();const st={id:'s'+i+'_'+Date.now(),name,first:parts[0]||name,initials,color:this.avatars[i%this.avatars.length],ability:null,guardian:(parts[parts.length-1]||name)+' household'};this.data.students.push(st);this.data.assignments.forEach(a=>{this.data.scores[a.id+'-'+st.id]=null;});this.data.standards.forEach(sd=>{this.data.mastery[sd.id+'-'+st.id]=0;});});this.persist();this.setState({showImport:false,importText:''});this.toast(names.length+' student'+(names.length>1?'s':'')+' added');}
+  addStudents(){const cid=this.curClassId();if(!cid){this.toast('Create a class first');this.setState({showImport:false});return;}const names=this.parseRoster(this.state.importText);if(!names.length){this.setState({showImport:false});return;}names.forEach(name=>{const i=this.data.allStudents.length;const parts=name.split(/\s+/);const initials=((parts[0]||'?')[0]+((parts[1]||parts[0]||'?')[0]||'')).toUpperCase();const st={id:this.genId('s'),name,first:parts[0]||name,initials,color:this.avatars[i%this.avatars.length],ability:null,guardian:(parts[parts.length-1]||name)+' household',class_id:cid};this.data.students.push(st);this.data.allStudents.push(st);this.data.assignments.forEach(a=>{this.data.scores[a.id+'-'+st.id]=null;});this.data.standards.forEach(sd=>{this.data.mastery[sd.id+'-'+st.id]=0;});});this.persist();this.setState({showImport:false,importText:''});this.toast(names.length+' student'+(names.length>1?'s':'')+' added');}
   importFile(e){const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const txt=String(r.result||'').replace(/\r/g,'');this.setState(s=>({importText:(s.importText?s.importText+'\n':'')+txt}));};r.readAsText(f);e.target.value='';}
   go(s){this.setState({screen:s});}
-  setPeriod(i){this.setState({period:i});}
+  setPeriod(i){this.selectClass(i);this.setState({period:i,selectedStudent:(this.data.students[0]||{}).id||null});}
   setAtt(sid,k){const key=this.attKey(sid);this.setState(st=>{const cur=st.attendance[key];return {attendance:Object.assign({},st.attendance,{[key]:cur===k?undefined:k})};},()=>this.persist());}
   markAll(){this.setState(st=>{const a=Object.assign({},st.attendance);this.data.students.forEach(s=>a[st.date+'|'+st.period+'|'+s.id]='present');return{attendance:a};},()=>{this.persist();this.toast('All '+this.data.students.length+' students marked present');});}
   clearAtt(){this.setState(st=>{const a=Object.assign({},st.attendance);this.data.students.forEach(s=>delete a[st.date+'|'+st.period+'|'+s.id]);return{attendance:a};},()=>this.persist());}
-  saveGrade(){const t=(this.state.gbTerm==='ave'||this.state.gbTerm==null)?0:this.state.gbTerm;const id='x'+Date.now();const hps=parseInt(this.state.newMax)||100;const name=this.state.newName||'New Task';this.data.assignments.push({id,term:t,comp:this.state.newComp,name,hps});this.data.students.forEach(st=>{this.data.scores[id+'-'+st.id]=null;});this.persist();this.setState({showAddGrade:false,newName:'',newMax:'100',gbTerm:t});this.toast('“'+name+'” added to '+['Term 1','Term 2','Term 3'][t]);}
+  saveGrade(){const cid=this.curClassId();if(!cid){this.toast('Create a class first');return;}const t=(this.state.gbTerm==='ave'||this.state.gbTerm==null)?0:this.state.gbTerm;const id=this.genId('a');const hps=parseInt(this.state.newMax)||100;const name=this.state.newName||'New Task';const a={id,term:t,comp:this.state.newComp,name,hps,class_id:cid};this.data.assignments.push(a);this.data.allAssignments.push(a);this.data.students.forEach(st=>{this.data.scores[id+'-'+st.id]=null;});this.persist();this.setState({showAddGrade:false,newName:'',newMax:'100',gbTerm:t});this.toast('“'+name+'” added to '+['Term 1','Term 2','Term 3'][t]);}
   openCell(aid,sid){const v=this.data.scores[aid+'-'+sid];this.setState({editCell:{aid,sid,val:v==null?'':String(v)}});}
   setCellVal(v){this.setState(st=>({editCell:Object.assign({},st.editCell,{val:v})}));}
   saveCell(){const e=this.state.editCell;if(!e)return;const key=e.aid+'-'+e.sid;const num=parseFloat(e.val);if(e.val===''||isNaN(num)){this.data.scores[key]=null;delete this.data.flags[key];}else{this.data.scores[key]=num;delete this.data.flags[key];}this.persist();this.setState({editCell:null});}
@@ -1186,11 +1351,11 @@ class Component extends DCLogic {
   openAssign(aid){const a=this.data.assignments.find(x=>x.id===aid);this.setState({editAssign:{id:aid,name:a.name,comp:a.comp,max:String(a.hps),confirm:false}});}
   setAssignField(f,v){this.setState(st=>({editAssign:Object.assign({},st.editAssign,{[f]:v})}));}
   saveAssign(){const e=this.state.editAssign;const a=this.data.assignments.find(x=>x.id===e.id);a.name=e.name||a.name;a.comp=e.comp;a.hps=parseInt(e.max)||a.hps;this.persist();this.setState({editAssign:null});this.toast('Assessment updated');}
-  deleteAssign(){const e=this.state.editAssign;if(!e.confirm){this.setState({editAssign:Object.assign({},e,{confirm:true})});return;}const id=e.id;this.data.assignments=this.data.assignments.filter(a=>a.id!==id);this.data.students.forEach(s=>{delete this.data.scores[id+'-'+s.id];delete this.data.flags[id+'-'+s.id];});const sb=window.__classlySb;if(sb)sb.from('assignments').delete().eq('id',id).then(()=>{},e=>console.error(e));this.persist();this.setState({editAssign:null});this.toast('Assignment deleted');}
+  deleteAssign(){const e=this.state.editAssign;if(!e.confirm){this.setState({editAssign:Object.assign({},e,{confirm:true})});return;}const id=e.id;this.data.assignments=this.data.assignments.filter(a=>a.id!==id);this.data.allAssignments=this.data.allAssignments.filter(a=>a.id!==id);this.data.students.forEach(s=>{delete this.data.scores[id+'-'+s.id];delete this.data.flags[id+'-'+s.id];});const sb=window.__classlySb;if(sb)sb.from('assignments').delete().eq('id',id).then(()=>{},e=>console.error(e));this.persist();this.setState({editAssign:null});this.toast('Assignment deleted');}
   openStudent(sid){const s=this.data.students.find(x=>x.id===sid);this.setState({editStudent:{id:sid,name:s.name,guardian:s.guardian,confirm:false}});}
   setStudentField(f,v){this.setState(st=>({editStudent:Object.assign({},st.editStudent,{[f]:v})}));}
   saveStudent(){const e=this.state.editStudent;const s=this.data.students.find(x=>x.id===e.id);const parts=(e.name||s.name).trim().split(/\s+/);s.name=e.name||s.name;s.first=parts[0];s.initials=((parts[0]||'?')[0]+((parts[1]||parts[0]||'?')[0]||'')).toUpperCase();s.guardian=e.guardian;this.persist();this.setState({editStudent:null});this.toast('Student updated');}
-  removeStudent(){const e=this.state.editStudent;if(!e)return;if(!e.confirm){this.setState({editStudent:Object.assign({},e,{confirm:true})});return;}const id=e.id;this.data.students=this.data.students.filter(s=>s.id!==id);const sb=window.__classlySb;if(sb)sb.from('students').delete().eq('id',id).then(()=>{},e=>console.error(e));this.persist();const nx=this.data.students[0];this.setState({editStudent:null,selectedStudent:nx?nx.id:null});this.toast('Student removed');}
+  removeStudent(){const e=this.state.editStudent;if(!e)return;if(!e.confirm){this.setState({editStudent:Object.assign({},e,{confirm:true})});return;}const id=e.id;this.data.students=this.data.students.filter(s=>s.id!==id);this.data.allStudents=this.data.allStudents.filter(s=>s.id!==id);const sb=window.__classlySb;if(sb)sb.from('students').delete().eq('id',id).then(()=>{},e=>console.error(e));this.persist();const nx=this.data.students[0];this.setState({editStudent:null,selectedStudent:nx?nx.id:null});this.toast('Student removed');}
   openReport(sid){this.setState({showReport:sid});}
   monthlyAtt(sidx){return this.data.months.map((m,k)=>{const days=m.days.length;let absent=Math.floor(this.rnd(sidx*31+k*3)*2.4);let late=Math.floor(this.rnd(sidx*31+k*3+11)*1.8);let excused=this.rnd(sidx*31+k*3+19)>0.82?1:0;absent=Math.min(absent,days);late=Math.min(late,Math.max(0,days-absent));excused=Math.min(excused,Math.max(0,days-absent-late));const present=Math.max(0,days-absent-late-excused);const rate=days?Math.round((present+late)/days*100):0;return{name:m.name,days,present,late,absent,excused,rate};});}
   printReport(){try{window.print();}catch(e){}}
@@ -1202,7 +1367,7 @@ class Component extends DCLogic {
   statCard(c){return Object.assign({},c,{cardStyle:{display:'flex',flexDirection:'column',gap:'10px',padding:'18px',background:c.bg,border:'1px solid '+c.bd,borderRadius:'18px'},iconWrap:{width:'42px',height:'42px',borderRadius:'12px',background:c.tint,color:c.color,display:'flex',alignItems:'center',justifyContent:'center'}});}
 
   renderVals(){
-    const P=this;const total=this.data.students.length;const cur=this.data.periods[this.state.period];
+    const P=this;const total=this.data.students.length;const cur=this.data.periods[this.state.period]||{subject:'—',period:'',room:'',time:'',color:'#6c4ad6',subject_type:'Core Subject'};
     const nameMode=this.props.studentNames||'Full';const density=this.props.density||'Comfortable';
     const dispName=(st)=>nameMode==='First name'?st.first:st.name;
     const termLabels=['Term 1','Term 2','Term 3'];
@@ -1212,7 +1377,10 @@ class Component extends DCLogic {
     const navDef=[['dashboard','Dashboard','dashboard'],['attendance','Attendance','fact_check'],['calendar','Calendar','calendar_month'],['gradebook','Gradebook','table_chart'],['students','Students','group'],['reports','Reports','insights']];
     const nav=navDef.map(it=>{const active=this.state.screen===it[0];return{label:it[1],icon:it[2],onClick:()=>this.go(it[0]),style:{display:'flex',alignItems:'center',gap:'12px',padding:'11px 14px',borderRadius:'13px',cursor:'pointer',fontSize:'15px',fontWeight:active?'700':'500',color:active?'#fff':'#6f6c8a',background:active?'#6c4ad6':'transparent',boxShadow:active?'0 6px 16px rgba(108,74,214,.32)':'none',transition:'all .15s'},iconStyle:{fontFamily:"'Material Symbols Rounded'",fontSize:'22px'}};});
 
-    const periodTabs=this.data.periods.map((p,i)=>{const active=i===this.state.period;return{label:p.period,onClick:()=>this.setPeriod(i),style:{padding:'8px 14px',borderRadius:'10px',fontSize:'13px',fontWeight:'700',cursor:'pointer',whiteSpace:'nowrap',color:active?'#fff':'#6f6c8a',background:active?cur.color:'transparent',transition:'all .15s'}};});
+    const pill=(active,color)=>({padding:'8px 14px',borderRadius:'10px',fontSize:'13px',fontWeight:'700',cursor:'pointer',whiteSpace:'nowrap',color:active?'#fff':'#6f6c8a',background:active?color:'transparent',transition:'all .15s'});
+    const periodTabs=this.data.classes.map((p,i)=>{const active=i===this.state.period;return{label:p.period||p.section||(p.subject||'Class'),onClick:()=>this.setPeriod(i),style:pill(active,p.color||cur.color)};});
+    if(this.data.classes.length) periodTabs.push({label:'✎',onClick:()=>this.editClass(),style:Object.assign(pill(false,'#6c4ad6'),{border:'1px solid #ece9f4'})});
+    periodTabs.push({label:'＋',onClick:()=>this.newClass(),style:Object.assign(pill(false,'#6c4ad6'),{border:'1px solid #ece9f4'})});
 
     const titles={dashboard:'Dashboard',attendance:'Take attendance',calendar:'Year calendar',gradebook:'Gradebook',students:'Students',reports:'Reports'};
     const dateLong='Friday · June 19, 2026';
@@ -1235,7 +1403,7 @@ class Component extends DCLogic {
       this.statCard({icon:'flag',value:risk.length,label:'Need support',color:'#e0533d',bg:'#fcebe6',bd:'#f6d8cd',tint:'#f7d6cc'})
     ];
     const stMap={present:['In session','#157a52','#e4f6ee'],up:['Upcoming','#9b98ab','#f4f3fb']};
-    const schedule=this.data.periods.map((p,i)=>{const isc=i===this.state.period;return{subject:p.subject,meta:p.period+' · '+p.room+' · '+p.time,onClick:()=>{this.setPeriod(i);this.go('attendance');},dotStyle:{width:'11px',height:'40px',borderRadius:'6px',background:p.color,flex:'none'},status:isc?'Current':'Upcoming',statusStyle:{fontSize:'12px',fontWeight:'700',padding:'5px 11px',borderRadius:'20px',color:isc?'#157a52':'#9b98ab',background:isc?'#e4f6ee':'#f4f3fb'}};});
+    const schedule=this.data.periods.map((p,i)=>{const isc=i===this.state.period;const meta=[p.period,p.room,p.time].filter(x=>x&&String(x).trim()).join(' · ')||(p.section||'');return{subject:p.subject,meta,onClick:()=>{this.setPeriod(i);this.go('attendance');},dotStyle:{width:'11px',height:'40px',borderRadius:'6px',background:p.color,flex:'none'},status:isc?'Current':'Upcoming',statusStyle:{fontSize:'12px',fontWeight:'700',padding:'5px 11px',borderRadius:'20px',color:isc?'#157a52':'#9b98ab',background:isc?'#e4f6ee':'#f4f3fb'}};});
     const attention=risk.slice(0,4).map(x=>({name:x.s.name,initials:x.s.initials,avatarStyle:this.av(x.s.color,36),reason:'Grade '+Math.round(x.f)+' · check in',onClick:()=>{this.setState({selectedStudent:x.s.id});this.go('students');},tag:this.letter(x.f),tagStyle:{fontSize:'12px',fontWeight:'800',padding:'4px 10px',borderRadius:'9px',color:'#fff',background:this.letterColor(x.f)}}));
 
     // attendance roster
@@ -1354,7 +1522,27 @@ class Component extends DCLogic {
     let editStudentView=null;if(this.state.editStudent){const e=this.state.editStudent;editStudentView={name:e.name,guardian:e.guardian,confirm:e.confirm,removeLabel:e.confirm?'Tap again to remove':'Remove from class'};}
     const reportView=this.state.showReport?reportFor(this.state.showReport):null;
     const importCount=this.parseRoster(this.state.importText).length;
+    let classFormView=null;
+    if(this.state.showClassForm){
+      const f=this.state.showClassForm;
+      const styps=['Core Subject','Academic Elective','Immersion / Research','Specialized / Applied','Performance-based'];
+      classFormView={
+        mode:f.mode, title:f.mode==='edit'?'Edit class':'New class',
+        subject:f.subject||'', section:f.section||'', room:f.room||'', period:f.period||'', time:f.time||'',
+        gradeLevel:f.grade_level||'', subjectType:f.subject_type||'Core Subject',
+        isEdit:f.mode==='edit', confirm:!!f.confirm,
+        deleteLabel:f.confirm?'Tap again to confirm delete':'Delete class',
+        typeChoices:styps.map(t=>{const active=(f.subject_type||'Core Subject')===t;return{name:t,onClick:()=>this.setClassField('subject_type',t),style:{padding:'8px 12px',borderRadius:'10px',fontSize:'12.5px',fontWeight:'700',cursor:'pointer',color:active?'#fff':'#6f6c8a',background:active?'#6c4ad6':'#f4f3fb',border:'1.5px solid '+(active?'#6c4ad6':'transparent')}};})
+      };
+    }
     return {
+      loaded:this.state.loaded, needsOnboarding:(this.state.loaded && this.data.classes.length===0), busy:this.state.busy,
+      teacherName:this.profileName||'Teacher',
+      classFormView, onNewClass:()=>this.newClass(), onLoadDemo:()=>this.loadDemo(),
+      setClassSubject:(e)=>this.setClassField('subject',e.target.value), setClassSection:(e)=>this.setClassField('section',e.target.value),
+      setClassPeriod:(e)=>this.setClassField('period',e.target.value), setClassRoom:(e)=>this.setClassField('room',e.target.value),
+      setClassTime:(e)=>this.setClassField('time',e.target.value), setClassGrade:(e)=>this.setClassField('grade_level',e.target.value),
+      saveClass:()=>this.saveClass(), deleteClass:()=>this.deleteClass(), closeClass:()=>this.setState({showClassForm:null}),
       dateLabel, isToday, stepPrev:()=>this.stepDate(-1), stepNext:()=>this.stepDate(1), goToday:()=>this.setState({date:'2026-06-19'}),
       gbSort, exportCsv:()=>this.exportCsv(), printReport:()=>this.printReport(),
       search:this.state.search, setSearch:(e)=>this.setSearch(e.target.value),
